@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
+import 'katex/dist/katex.min.css';
+import { InlineMath } from 'react-katex';
 import './App.css';
-import videoData from './demo.json';
 
 function Navbar() {
   return (
@@ -131,43 +132,11 @@ function Abstract() {
 }
 
 function App() {
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [displayMode, setDisplayMode] = useState('multiple-choice'); // 'multiple-choice' or 'descriptive'
-  const videoKeys = Object.keys(videoData);
-  const currentVideo = videoData[videoKeys[currentVideoIndex]];
-  
-  const goToNextVideo = () => {
-    setCurrentVideoIndex((prevIndex) => (prevIndex + 1) % videoKeys.length);
+  const demoImage = {
+    src: `${process.env.PUBLIC_URL}/static/images/predictions.jpg`,
+    alt: 'Predictions',
   };
-  
-  const goToPrevVideo = () => {
-    setCurrentVideoIndex((prevIndex) => (prevIndex - 1 + videoKeys.length) % videoKeys.length);
-  };
-  
-  useEffect(() => {
-    // Check if all videos in demo.json have corresponding folders
-    const missingVideos = videoKeys.filter(key => {
-      const video = document.createElement('video');
-      video.src = `${process.env.PUBLIC_URL}/videos/${key}/video.mp4`;
-      return video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE;
-    });
-    
-    if (missingVideos.length > 0) {
-      console.warn('Missing videos for these keys:', missingVideos);
-    }
-  }, []);
-  
-  // Add keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowLeft') goToPrevVideo();
-      if (e.key === 'ArrowRight') goToNextVideo();
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-  
+
   useEffect(() => {
     // Check if icon files exist
     const iconFiles = ['llavaction.svg', 'chatgpt.png'];
@@ -192,58 +161,14 @@ function App() {
               <h2 className="title is-3">Demo</h2>
               <div className="content">
                 <div className="video-container">
-                  <div className="video-navigation">
-                    <button 
-                      className="nav-arrow nav-arrow-left" 
-                      onClick={goToPrevVideo}
-                      aria-label="Previous video"
-                    >
-                      <span>&#10094;</span>
-                    </button>
-                    
-                    <VideoPlayer videoId={videoKeys[currentVideoIndex]} />
-                    
-                    <button 
-                      className="nav-arrow nav-arrow-right" 
-                      onClick={goToNextVideo}
-                      aria-label="Next video"
-                    >
-                      <span>&#10095;</span>
-                    </button>
+                  <div className="gallery-frame">
+                    <img 
+                      src={demoImage.src} 
+                      alt={demoImage.alt} 
+                      className="gallery-image"
+                    />
+                    <p className="image-caption">{demoImage.alt}</p>
                   </div>
-                  
-                  <div className="dot-indicators">
-                    {videoKeys.map((key, index) => (
-                      <button
-                        key={key}
-                        className={`dot ${index === currentVideoIndex ? 'active' : ''}`}
-                        onClick={() => setCurrentVideoIndex(index)}
-                        aria-label={`Go to video ${index + 1}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="data-container">
-                  <div className="display-mode-toggle">
-                    <button 
-                      className={displayMode === 'multiple-choice' ? 'active' : ''}
-                      onClick={() => setDisplayMode('multiple-choice')}
-                    >
-                      Multiple Choice
-                    </button>
-                    <button 
-                      className={displayMode === 'descriptive' ? 'active' : ''}
-                      onClick={() => setDisplayMode('descriptive')}
-                    >
-                      Descriptive
-                    </button>
-                  </div>
-                  
-                  <DataDisplay 
-                    data={currentVideo} 
-                    displayMode={displayMode} 
-                  />
                 </div>
               </div>
             </div>
@@ -259,16 +184,28 @@ function App() {
               <div className="results-container">
                 <div className="result-image-wrapper">
                   <img 
-                    src={`${process.env.PUBLIC_URL}/static/images/fig1.png`} 
-                    alt="LLaVAction-7B results."
+                    src={`${process.env.PUBLIC_URL}/static/images/training_pipeline.jpg`} 
+                    alt="Training pipeline"
                     className="result-image"
                   />
                   <p className="figure-caption">
-                    <strong>LLaVAction-7B:</strong> Top: Qualitative inspection of distractors. We show an example clip with labels from random choices (which empirically is easy to solve), vs. our proposed harder benchmark with action labels generated by TIM. Our hard example generation strategy can 
-                    automatically explore challenges such as temporal order and similar objects that are emphasized in other benchmarks. Bottom: Note, while GPT-4o is very good at random choices, it suffers in the harder benchmarking regime, and our method, LLaVAction outperforms the GPT-4o models.
+                    <strong>Overview of the training process.</strong> The process
+                    starts from a noise sample{' '}
+                    <InlineMath math={'x_0 \\sim \\mathcal{N}(0, I)'} /> and a
+                    ground-truth 3D pose <InlineMath math={'x_1'} /> from the training
+                    set. An intermediate sample <InlineMath math={'x_t'} /> is obtained
+                    by linear interpolation between <InlineMath math={'x_0'} /> and{' '}
+                    <InlineMath math={'x_1'} />. The red region illustrates the valid
+                    3D pose data manifold. The network{' '}
+                    <InlineMath math={'v_\\theta(x_t, t, c)'} />, conditioned on the 2D
+                    pose <InlineMath math={'c = x^{2D}'} />, is trained to predict the
+                    true velocity <InlineMath math={'v_t'} />. The Flow Matching loss{' '}
+                    <InlineMath math={'\\mathcal{L}_{\\text{CFM}} = \\lVert v_\\theta - v_t \\rVert_2^2'} />{' '}
+                    minimizes the discrepancy between the predicted and ground-truth
+                    velocities.
                   </p>
                 </div>
-                <div className="result-image-wrapper">
+                {/* <div className="result-image-wrapper">
                   <img 
                     src={`${process.env.PUBLIC_URL}/static/images/overview.png`} 
                     alt="Result visualization 2"
@@ -277,7 +214,7 @@ function App() {
                   <p className="figure-caption">
                     <strong>LLaVAction-7B pipeline:</strong>  Our full model includes an action token and additional auxiliary visual tasks, as noted. Inputs are shown for a given video clip. The responses are from the direction prediction, GPT-4o distillation, and the adversarial MQA.
                   </p>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -295,123 +232,6 @@ function App() {
 }`}</code></pre>
         </div>
       </section>
-    </div>
-  );
-}
-
-function VideoPlayer({ videoId }) {
-  const videoSrc = `${process.env.PUBLIC_URL}/videos/${videoId}/video.mp4`;
-  const videoRef = useRef(null);
-  const [playbackRate, setPlaybackRate] = useState(0.5); // Default to half speed
-  
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = playbackRate;
-    }
-  }, [videoId, playbackRate]);
-  
-  return (
-    <div className="video-player">
-      <video 
-        ref={videoRef}
-        key={videoId} 
-        controls 
-        autoPlay 
-        loop
-      >
-        <source src={videoSrc} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <p className="video-id">{videoId}</p>
-      <div className="playback-controls">
-        <button onClick={() => setPlaybackRate(rate => Math.max(0.1, rate - 0.1))}>Slower</button>
-        <span>{playbackRate.toFixed(1)}x</span>
-        <button onClick={() => setPlaybackRate(rate => Math.min(2, rate + 0.1))}>Faster</button>
-      </div>
-    </div>
-  );
-}
-
-function DataDisplay({ data, displayMode }) {
-  return (
-    <div className="data-display">
-      <div className="ground-truth">
-        <h3>Ground Truth Action:</h3>
-        <p>{data.gt}</p>
-      </div>
-      
-      {displayMode === 'multiple-choice' ? (
-        <div className="multiple-choice">
-          <div className="model-legend">
-            <div className="model-item">
-              <img 
-                src={`${process.env.PUBLIC_URL}/icons/llavaction.svg`} 
-                alt="LLaVAction" 
-                className="model-icon llavaction-icon"
-              />
-              <span>LLaVAction</span>
-            </div>
-            <div className="model-item">
-              <img 
-                src={`${process.env.PUBLIC_URL}/icons/chatgpt.png`} 
-                alt="ChatGPT" 
-                className="model-icon"
-              />
-              <span>ChatGPT</span>
-            </div>
-          </div>
-          
-          <h3>Action Options:</h3>
-          <ul>
-            {data.llavaction_options.map((option, index) => {
-              // Determine which models predicted this option
-              const isLlavPrediction = option === data.llavaction_pred;
-              const isChatGptPrediction = option === data.tim_chatgpt_pred;
-              
-              return (
-                <li 
-                  key={index}
-                  className={`
-                    ${isLlavPrediction ? 'llav-highlighted' : ''}
-                    ${isChatGptPrediction ? 'chatgpt-highlighted' : ''}
-                  `}
-                >
-                  <span>{option}</span>
-                  
-                  <div className="prediction-icons">
-                    {isLlavPrediction && (
-                      <img 
-                        src={`${process.env.PUBLIC_URL}/icons/llavaction.svg`} 
-                        alt="LLaVAction prediction" 
-                        className="prediction-icon llavaction-icon"
-                      />
-                    )}
-                    
-                    {isChatGptPrediction && (
-                      <img 
-                        src={`${process.env.PUBLIC_URL}/icons/chatgpt.png`} 
-                        alt="ChatGPT prediction" 
-                        className="prediction-icon"
-                      />
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : (
-        <div className="descriptive">
-          <div className="open-ended">
-            <h3>Objects Visible:</h3>
-            <p>{data.open_ended}</p>
-          </div>
-          <div className="caption">
-            <h3>Action Description:</h3>
-            <p>{data.caption}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
