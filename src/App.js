@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import 'katex/dist/katex.min.css';
-import { InlineMath } from 'react-katex';
+import { InlineMath, BlockMath } from 'react-katex';
 import './App.css';
 
 function Navbar() {
@@ -205,28 +205,40 @@ function App() {
                     velocities.
                   </p>
                 </div>
-                {/* <div className="result-image-wrapper">
+                <div className="result-image-wrapper">
                   <img 
-                    src={`${process.env.PUBLIC_URL}/static/images/overview.png`} 
-                    alt="Result visualization 2"
+                    src={`${process.env.PUBLIC_URL}/static/images/inference_pipeline.png`} 
+                    alt="Inference pipeline"
                     className="result-image"
                   />
                   <p className="figure-caption">
-                    <strong>LLaVAction-7B pipeline:</strong>  Our full model includes an action token and additional auxiliary visual tasks, as noted. Inputs are shown for a given video clip. The responses are from the direction prediction, GPT-4o distillation, and the adversarial MQA.
+                    <strong>Overview of the inference process.</strong>
+                    At inference time, we initialize the state with{' '}
+                    <InlineMath math={'x_0 \\sim \\mathcal{N}(0, I)'} /> and integrate
+                    the learned velocity field from <InlineMath math={'t = 0'} /> to{' '}
+                    <InlineMath math={'t = 1'} /> to obtain the predicted 3D pose{' '}
+                    <InlineMath math={'x_1'} />.
+                    <BlockMath math={'x_1 = x_0 + \\int_{0}^{1} v_\\theta(x_t, t, c)\\, dt'} />
+                    In practice, this continuous-time integral is approximated with{' '}
+                    <InlineMath math={'S'} /> discrete steps (step size{' '}
+                    <InlineMath math={'\\Delta t = 1 / S'} />):
+                    <BlockMath math={'x_{t+\\tfrac{1}{S}} = x_t + \\tfrac{1}{S}\\, v_\\theta\\!\\left(x_t, t, c\\right), \\quad t \\in \\left\\{0, \\tfrac{1}{S}, \\dots, 1 - \\tfrac{1}{S}\\right\\}'} />
+                    For example, when <InlineMath math={'S = 3'} />, the process takes
+                    three steps to move from <InlineMath math={'x_0'} /> to{' '}
+                    <InlineMath math={'x_1'} />.
                   </p>
-                </div> */}
+                </div> 
               </div>
             </div>
           </div>
         </div>
       </section>
-
       <section className="section" id="BibTeX">
         <div className="container is-max-desktop content">
           <h2 className="title">BibTeX</h2>
-          <pre><code>{`@article{YeQi2025llavaction,
-  title={LLaVAction: evaluating and training multi-modal large language models for action recognition},
-  author={Ye, Shaokai and Qi, Haozhe and Mathis, Alexander and Mathis, Mackenzie W.},
+          <pre><code>{`@article{XXXX,
+  title={FMPose: 3D Pose Estimation via Flow Matching},
+  author={Wang, Ti and Yu, Xiaohang and Mathis, Mackenzie},
   journal={arXiv preprint},
   year={2025}
 }`}</code></pre>
