@@ -347,9 +347,9 @@ img[src*="chatgpt"] {
 }
 
 .result-image {
-  width: 500px !important;
-  min-width: 500px !important;
-  max-width: 500px !important;
+  width: 460px !important;
+  min-width: 460px !important;
+  max-width: 460px !important;
   height: auto !important;
   display: block !important;
   object-fit: contain !important;
@@ -393,7 +393,7 @@ img[src*="overview.png"] {
   line-height: 1.4;
   flex: 1;
   padding-top: 20px;
-  max-width: 420px;
+  max-width: 560px;
 }
 
 /* Add responsive handling for results images */
