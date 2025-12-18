@@ -396,6 +396,47 @@ img[src*="overview.png"] {
   max-width: 560px;
 }
 
+.pose-viewer-intro {
+  margin: 8px 0 0;
+  text-align: left;
+}
+
+.pose-viewers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.pose-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.06);
+  text-align: left;
+}
+
+.pose-card-title {
+  margin-bottom: 4px;
+}
+
+.pose-card-description {
+  margin: 0 0 10px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.pose-plot-wrapper {
+  width: 100%;
+  height: 340px;
+}
+
+.pose-plot {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* Add responsive handling for results images */
 @media screen and (max-width: 768px) {
   .result-image-wrapper {
@@ -503,6 +544,10 @@ img[src*="overview.png"] {
   
   .publication-title {
     font-size: 1.75rem !important;
+  }
+
+  .pose-plot-wrapper {
+    height: 300px;
   }
 }
 
