@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
 import './App.css';
+import Plot from 'react-plotly.js';
 
 function Navbar() {
   return (
@@ -131,6 +132,194 @@ function Abstract() {
   );
 }
 
+const POSE_CONNECTIONS = [
+  [0, 1], [1, 2], [2, 3], [3, 4],
+  [2, 5], [5, 6], [6, 7],
+  [2, 8], [8, 9], [9, 10],
+  [0, 11], [11, 12], [12, 13],
+  [0, 14], [14, 15], [15, 16],
+  [5, 8]
+];
+
+const POSE_PALETTE = [
+  '#2563eb', '#f97316', '#10b981', '#e11d48',
+  '#0ea5e9', '#9333ea', '#ef4444', '#14b8a6'
+];
+
+const plotConfig = {
+  responsive: true,
+  displaylogo: false,
+  scrollZoom: true,
+  modeBarButtonsToRemove: ['toImage', 'lasso3d', 'select3d']
+};
+
+const axisTemplate = {
+  title: '',
+  showgrid: true,
+  gridcolor: '#e5e7eb',
+  zeroline: false,
+  showticklabels: false,
+  showbackground: true,
+  backgroundcolor: '#f8fafc',
+  showspikes: false
+};
+
+const buildPoseTraces = (poses) => {
+  return poses.flatMap((pose, idx) => {
+    const color = POSE_PALETTE[idx % POSE_PALETTE.length];
+    const x = pose.map(p => p[0]);
+    const y = pose.map(p => p[1]);
+    const z = pose.map(p => p[2]);
+
+    const hovertext = pose.map((point, jointIdx) =>
+      `<b>Joint ${jointIdx}</b><br>x: ${point[0].toFixed(2)}<br>y: ${point[1].toFixed(2)}<br>z: ${point[2].toFixed(2)}`
+    );
+
+    const scatterTrace = {
+      type: 'scatter3d',
+      mode: 'markers',
+      name: `Pose ${idx + 1}`,
+      x,
+      y,
+      z,
+      marker: {
+        size: 4,
+        color,
+        opacity: 0.9,
+        line: { width: 1, color: '#111827' }
+      },
+      hovertext,
+      hoverinfo: 'text',
+      showlegend: false
+    };
+
+    const lineTraces = POSE_CONNECTIONS
+      .filter(([a, b]) => a < pose.length && b < pose.length)
+      .map(([a, b]) => ({
+        type: 'scatter3d',
+        mode: 'lines',
+        x: [pose[a][0], pose[b][0]],
+        y: [pose[a][1], pose[b][1]],
+        z: [pose[a][2], pose[b][2]],
+        line: { color, width: 3 },
+        opacity: 0.45,
+        hoverinfo: 'none',
+        showlegend: false
+      }));
+
+    return [scatterTrace, ...lineTraces];
+  });
+};
+
+const buildPoseLayout = (camera) => ({
+  margin: { l: 0, r: 0, t: 0, b: 0 },
+  scene: {
+    xaxis: axisTemplate,
+    yaxis: axisTemplate,
+    zaxis: axisTemplate,
+    bgcolor: '#ffffff',
+    aspectmode: 'data',
+    camera: camera || { eye: { x: 1.6, y: 1.35, z: 1.25 } }
+  },
+  paper_bgcolor: 'white',
+  plot_bgcolor: 'white',
+  showlegend: false,
+  hovermode: 'closest'
+});
+
+const applyOffset = (pose, offset) =>
+  pose.map(([x, y, z]) => [x + offset[0], y + offset[1], z + offset[2]]);
+
+const BASE_POSE = [
+  [0, 0, 0],
+  [0, 0.1, 0.25],
+  [0, 0.25, 0.5],
+  [0, 0.35, 0.8],
+  [0, 0.42, 1.05],
+  [0.25, 0.28, 0.65],
+  [0.45, 0.1, 0.55],
+  [0.58, -0.05, 0.4],
+  [-0.25, 0.28, 0.65],
+  [-0.45, 0.12, 0.52],
+  [-0.6, -0.02, 0.36],
+  [0.18, -0.12, 0.25],
+  [0.22, -0.42, 0.08],
+  [0.18, -0.68, -0.08],
+  [-0.18, -0.12, 0.25],
+  [-0.22, -0.42, 0.08],
+  [-0.18, -0.7, -0.08]
+];
+
+const POSE_OFFSETS = [
+  [0, 0, 0],
+  [0.03, 0.02, 0.05],
+  [-0.03, 0.01, -0.04],
+  [0.02, -0.03, 0.02],
+  [-0.02, -0.02, 0.04],
+  [0.04, 0, -0.02],
+  [-0.04, 0.03, 0.03]
+];
+
+const poseHypotheses = POSE_OFFSETS.map(offset => applyOffset(BASE_POSE, offset));
+
+const refinedPose = applyOffset(BASE_POSE, [0.01, 0.02, 0.015]);
+
+const liftedArmPose = BASE_POSE.map((point, idx) => {
+  if (idx === 6 || idx === 7) {
+    return [point[0] + 0.12, point[1] + 0.05, point[2] + 0.06];
+  }
+  if (idx === 9 || idx === 10) {
+    return [point[0] - 0.14, point[1] + 0.04, point[2] + 0.05];
+  }
+  return point;
+});
+
+const POSE_VIEWERS = [
+  {
+    id: 'hypotheses',
+    title: 'Hypotheses before refinement',
+    description: 'Multiple flow-matching hypotheses from different noise seeds. Drag, rotate, and scroll to explore the distribution.',
+    poses: poseHypotheses,
+    camera: { eye: { x: 1.6, y: 1.25, z: 1.1 } }
+  },
+  {
+    id: 'refined',
+    title: 'Posterior expectation (RPEA)',
+    description: 'Smoothed pose after Reprojection-based Posterior Expectation Aggregation.',
+    poses: [refinedPose],
+    camera: { eye: { x: 1.25, y: 1.05, z: 1.25 } }
+  },
+  {
+    id: 'alternate',
+    title: 'Alternate hypothesis',
+    description: 'Example hypothesis with a lifted right arm to showcase viewpoint changes.',
+    poses: [liftedArmPose],
+    camera: { eye: { x: -1.4, y: 1.2, z: 1.05 } }
+  }
+];
+
+function PoseViewerCard({ title, description, poses, camera }) {
+  const traces = useMemo(() => buildPoseTraces(poses), [poses]);
+  const layout = useMemo(() => buildPoseLayout(camera), [camera]);
+
+  return (
+    <div className="pose-card">
+      <h3 className="title is-5 pose-card-title">{title}</h3>
+      <p className="pose-card-description">{description}</p>
+      <div className="pose-plot-wrapper">
+        <Plot
+          data={traces}
+          layout={layout}
+          config={plotConfig}
+          className="pose-plot"
+          style={{ width: '100%', height: '100%' }}
+          useResizeHandler
+        />
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const demoImage = {
     src: `${process.env.PUBLIC_URL}/static/images/predictions.jpg`,
@@ -170,6 +359,22 @@ function App() {
                     <p className="image-caption">{demoImage.alt}</p>
                   </div>
                 </div>
+              </div>
+              <div className="pose-viewer-intro">
+                <p className="pose-card-description">
+                  Interactive 3D pose viewers: drag to rotate, scroll or pinch to zoom, and double-click to reset.
+                </p>
+              </div>
+              <div className="pose-viewers-grid">
+                {POSE_VIEWERS.map(viewer => (
+                  <PoseViewerCard
+                    key={viewer.id}
+                    title={viewer.title}
+                    description={viewer.description}
+                    poses={viewer.poses}
+                    camera={viewer.camera}
+                  />
+                ))}
               </div>
             </div>
           </div>
