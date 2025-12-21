@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
 import './App.css';
 import Plot from 'react-plotly.js';
+import JSZip from 'jszip';
 
 function Navbar() {
   return (
@@ -230,82 +231,147 @@ const buildPoseLayout = (camera) => ({
 const applyOffset = (pose, offset) =>
   pose.map(([x, y, z]) => [x + offset[0], y + offset[1], z + offset[2]]);
 
-const BASE_POSE = [
-  [0, 0, 0],
-  [0, 0.1, 0.25],
-  [0, 0.25, 0.5],
-  [0, 0.35, 0.8],
-  [0, 0.42, 1.05],
-  [0.25, 0.28, 0.65],
-  [0.45, 0.1, 0.55],
-  [0.58, -0.05, 0.4],
-  [-0.25, 0.28, 0.65],
-  [-0.45, 0.12, 0.52],
-  [-0.6, -0.02, 0.36],
-  [0.18, -0.12, 0.25],
-  [0.22, -0.42, 0.08],
-  [0.18, -0.68, -0.08],
-  [-0.18, -0.12, 0.25],
-  [-0.22, -0.42, 0.08],
-  [-0.18, -0.7, -0.08]
-];
+const parseHeaderStr = (str) => {
+  const start = str.indexOf('{');
+  const end = str.lastIndexOf('}');
+  const core = start >= 0 && end >= 0 ? str.slice(start, end + 1) : str;
+  const json = core
+    .trim()
+    .replace(/'/g, '"')
+    .replace(/\(/g, '[')
+    .replace(/\)/g, ']')
+    .replace(/,]/g, ']')
+    .replace(/,]/g, ']')
+    .replace(/,\s*}/g, '}')
+    .replace(/\bTrue\b/g, 'true')
+    .replace(/\bFalse\b/g, 'false');
+  return JSON.parse(json);
+};
 
-const POSE_OFFSETS = [
-  [0, 0, 0],
-  [0.03, 0.02, 0.05],
-  [-0.03, 0.01, -0.04],
-  [0.02, -0.03, 0.02],
-  [-0.02, -0.02, 0.04],
-  [0.04, 0, -0.02],
-  [-0.04, 0.03, 0.03]
-];
-
-const poseHypotheses = POSE_OFFSETS.map(offset => applyOffset(BASE_POSE, offset));
-
-const refinedPose = applyOffset(BASE_POSE, [0.01, 0.02, 0.015]);
-
-const liftedArmPose = BASE_POSE.map((point, idx) => {
-  if (idx === 6 || idx === 7) {
-    return [point[0] + 0.12, point[1] + 0.05, point[2] + 0.06];
+const typedArrayCtor = (descr) => {
+  switch (descr) {
+    case '<f8':
+      return Float64Array;
+    case '<f4':
+      return Float32Array;
+    case '<i4':
+      return Int32Array;
+    case '<i2':
+      return Int16Array;
+    case '|u1':
+      return Uint8Array;
+    default:
+      throw new Error(`Unsupported dtype: ${descr}`);
   }
-  if (idx === 9 || idx === 10) {
-    return [point[0] - 0.14, point[1] + 0.04, point[2] + 0.05];
-  }
-  return point;
-});
+};
 
-const POSE_VIEWERS = [
-  {
-    id: 'hypotheses',
-    title: 'Hypotheses before refinement',
-    description: 'Multiple flow-matching hypotheses from different noise seeds. Drag, rotate, and scroll to explore the distribution.',
-    poses: poseHypotheses,
-    camera: { eye: { x: 1.6, y: 1.25, z: 1.1 } }
-  },
-  {
-    id: 'refined',
-    title: 'Posterior expectation (RPEA)',
-    description: 'Smoothed pose after Reprojection-based Posterior Expectation Aggregation.',
-    poses: [refinedPose],
-    camera: { eye: { x: 1.25, y: 1.05, z: 1.25 } }
-  },
-  {
-    id: 'alternate',
-    title: 'Alternate hypothesis',
-    description: 'Example hypothesis with a lifted right arm to showcase viewpoint changes.',
-    poses: [liftedArmPose],
-    camera: { eye: { x: -1.4, y: 1.2, z: 1.05 } }
+const reorderFortranToC = (data, shape) => {
+  const total = data.length;
+  const dest = new data.constructor(total);
+  const dims = shape.length;
+  const strideF = new Array(dims).fill(0);
+  strideF[0] = 1;
+  for (let i = 1; i < dims; i += 1) {
+    strideF[i] = strideF[i - 1] * shape[i - 1];
   }
-];
+  for (let idx = 0; idx < total; idx += 1) {
+    // convert C-order linear idx to multi-index
+    let cIdx = idx;
+    const multi = new Array(dims);
+    for (let dim = dims - 1; dim >= 0; dim -= 1) {
+      multi[dim] = cIdx % shape[dim];
+      cIdx = Math.floor(cIdx / shape[dim]);
+    }
+    // map to Fortran-order linear idx
+    let fIdx = 0;
+    for (let dim = 0; dim < dims; dim += 1) {
+      fIdx += multi[dim] * strideF[dim];
+    }
+    dest[idx] = data[fIdx];
+  }
+  return dest;
+};
 
-function PoseViewerCard({ title, description, poses, camera }) {
+const parseNpy = (buffer) => {
+  const dv = new DataView(buffer);
+  const magic =
+    String.fromCharCode(dv.getUint8(0)) +
+    String.fromCharCode(dv.getUint8(1)) +
+    String.fromCharCode(dv.getUint8(2)) +
+    String.fromCharCode(dv.getUint8(3)) +
+    String.fromCharCode(dv.getUint8(4)) +
+    String.fromCharCode(dv.getUint8(5));
+  if (magic !== '\x93NUMPY') {
+    throw new Error('Not a NPY file');
+  }
+  const major = dv.getUint8(6);
+  const minor = dv.getUint8(7);
+  const littleEndian = true;
+  const headerLen = major <= 1 ? dv.getUint16(8, littleEndian) : dv.getUint32(8, littleEndian);
+  const headerStart = major <= 1 ? 10 : 12;
+  const headerTxt = new TextDecoder('ascii').decode(
+    new Uint8Array(buffer, headerStart, headerLen)
+  );
+  const header = parseHeaderStr(headerTxt);
+  if (!header.descr.startsWith('<') && !header.descr.startsWith('|')) {
+    throw new Error(`Only little-endian/byte-aligned dtypes supported, got ${header.descr}`);
+  }
+  const ctor = typedArrayCtor(header.descr);
+  const dataOffset = headerStart + headerLen;
+  const data = new ctor(buffer, dataOffset);
+  const flat = header.fortran_order ? reorderFortranToC(data, header.shape) : data;
+  return { data: flat, shape: header.shape };
+};
+
+const reshapePose = (data, shape) => {
+  if (!shape || shape.length < 2 || shape[1] !== 3) {
+    throw new Error(`Unsupported pose shape: ${shape}`);
+  }
+  const pose = [];
+  for (let i = 0; i < shape[0]; i += 1) {
+    pose.push([
+      data[i * 3 + 0],
+      data[i * 3 + 1],
+      data[i * 3 + 2],
+    ]);
+  }
+  return pose;
+};
+
+const loadPoseFromNpz = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch pose file: ${response.status}`);
+  }
+  const buffer = await response.arrayBuffer();
+  const zip = await JSZip.loadAsync(buffer);
+  const npyFileName = Object.keys(zip.files).find(name => name.endsWith('.npy'));
+  if (!npyFileName) {
+    throw new Error('NPZ file does not contain an .npy array');
+  }
+  const npyBuffer = await zip.files[npyFileName].async('arraybuffer');
+  const parsed = parseNpy(npyBuffer);
+  return reshapePose(parsed.data, parsed.shape);
+};
+
+const offsetPose = (pose, offset) =>
+  pose.map(([x, y, z]) => [x + offset[0], y + offset[1], z + offset[2]]);
+
+const POSE_FILE_PATH = `${process.env.PUBLIC_URL}/static/images/3dpose_npz/0000_3D.npz`;
+const PLACEHOLDER_IMAGE = `${process.env.PUBLIC_URL}/static/images/dog.JPEG`;
+
+function PoseViewerCard({ title, poses, camera, imageSrc, hideImage = false }) {
   const traces = useMemo(() => buildPoseTraces(poses), [poses]);
   const layout = useMemo(() => buildPoseLayout(camera), [camera]);
 
   return (
     <div className="pose-card">
       <h3 className="title is-5 pose-card-title">{title}</h3>
-      <p className="pose-card-description">{description}</p>
+      {!hideImage && (
+        <div className="pose-card-image">
+          <img src={imageSrc} alt={title} className="pose-image" />
+        </div>
+      )}
       <div className="pose-plot-wrapper">
         <Plot
           data={traces}
@@ -320,11 +386,26 @@ function PoseViewerCard({ title, description, poses, camera }) {
   );
 }
 
+function ImageCard({ title, imageSrc }) {
+  return (
+    <div className="pose-card">
+      <h3 className="title is-5 pose-card-title">{title}</h3>
+      <div className="pose-card-image">
+        <img src={imageSrc} alt={title} className="pose-image" />
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const demoImage = {
     src: `${process.env.PUBLIC_URL}/static/images/predictions.jpg`,
     alt: 'Predictions',
   };
+
+  const [poseBase, setPoseBase] = useState(null);
+  const [poseLoading, setPoseLoading] = useState(true);
+  const [poseError, setPoseError] = useState('');
 
   useEffect(() => {
     // Check if icon files exist
@@ -336,6 +417,73 @@ function App() {
       img.src = `${process.env.PUBLIC_URL}/icons/${file}`;
     });
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchPose = async () => {
+      try {
+        const pose = await loadPoseFromNpz(POSE_FILE_PATH);
+        if (isMounted) {
+          setPoseBase(pose);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setPoseError(err?.message || 'Failed to load pose file');
+        }
+      } finally {
+        if (isMounted) {
+          setPoseLoading(false);
+        }
+      }
+    };
+    fetchPose();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const poseViewers = useMemo(() => {
+    if (!poseBase) return [];
+    const variants = [
+      poseBase,
+      offsetPose(poseBase, [0.05, 0.02, 0.03]),
+      offsetPose(poseBase, [-0.04, 0.03, -0.01]),
+      offsetPose(poseBase, [0.02, -0.03, 0.02])
+    ];
+    const cameras = [
+      { eye: { x: 1.6, y: 1.25, z: 1.1 } },
+      { eye: { x: -1.2, y: 1.3, z: 1.15 } },
+      { eye: { x: 1.25, y: 1.05, z: 1.25 } },
+      { eye: { x: -1.4, y: 1.2, z: 1.05 } }
+    ];
+    return variants.map((pose, idx) => ({
+      id: `pose-${idx + 1}`,
+      title: `Image ${idx + 1} · 3D Pose ${idx + 1}`,
+      poses: [pose],
+      camera: cameras[idx] || undefined
+    }));
+  }, [poseBase]);
+
+  const demoModules = useMemo(() => {
+    if (!poseBase) return [];
+    const modules = [];
+    poseViewers.forEach((viewer, idx) => {
+      modules.push({
+        type: 'image',
+        id: `img-${idx + 1}`,
+        title: `Image ${idx + 1}`,
+        imageSrc: PLACEHOLDER_IMAGE,
+      });
+      modules.push({
+        type: 'pose',
+        id: viewer.id,
+        title: `3D Pose ${idx + 1}`,
+        poses: viewer.poses,
+        camera: viewer.camera,
+      });
+    });
+    return modules;
+  }, [poseViewers]);
   
   return (
     <div className="app">
@@ -356,25 +504,42 @@ function App() {
                       alt={demoImage.alt} 
                       className="gallery-image"
                     />
-                    <p className="image-caption">{demoImage.alt}</p>
+                    {/* <p className="image-caption">{demoImage.alt}</p> */}
                   </div>
                 </div>
               </div>
               <div className="pose-viewer-intro">
                 <p className="pose-card-description">
-                  Interactive 3D pose viewers: drag to rotate, scroll or pinch to zoom, and double-click to reset.
+                  Drag to rotate, scroll to zoom, double-click to reset. Placeholder image reused; four samples share the current 3D pose.
                 </p>
               </div>
-              <div className="pose-viewers-grid">
-                {POSE_VIEWERS.map(viewer => (
-                  <PoseViewerCard
-                    key={viewer.id}
-                    title={viewer.title}
-                    description={viewer.description}
-                    poses={viewer.poses}
-                    camera={viewer.camera}
-                  />
-                ))}
+              {poseLoading && (
+                <p className="pose-status pose-loading">Loading 3D pose from NPZ…</p>
+              )}
+              {poseError && (
+                <p className="pose-status pose-error">Failed to load pose: {poseError}</p>
+              )}
+              <div className="pose-viewers-grid four-wide">
+                {demoModules.map(module => {
+                  if (module.type === 'image') {
+                    return (
+                      <ImageCard
+                        key={module.id}
+                        title={module.title}
+                        imageSrc={module.imageSrc}
+                      />
+                    );
+                  }
+                  return (
+                    <PoseViewerCard
+                      key={module.id}
+                      title={module.title}
+                      poses={module.poses}
+                      camera={module.camera}
+                      hideImage
+                    />
+                  );
+                })}
               </div>
             </div>
           </div>
