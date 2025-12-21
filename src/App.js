@@ -372,7 +372,7 @@ const SAMPLES = [
   },
   {
     id: 'human-golf',
-    title: 'Human · Golf · Sample 2',
+    title: 'Human · Basketball · Sample 2',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/Golf_3dpw/pose2D/0000_2D.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/Golf_3dpw/pose3D/0000_3D.npz`,
     connections: HUMAN_CONNECTIONS,
@@ -381,7 +381,7 @@ const SAMPLES = [
     id: 'animal-dog',
     title: 'Animal · Dog · Sample 1',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/dog/pose2D_on_image/0000_2d.png`,
-    posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000119761_horse/pose3D/0000_3D.npz`,
+    posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/dog/pose3D/0000_3D.npz`,
     connections: ANIMAL_CONNECTIONS,
   },
   {
