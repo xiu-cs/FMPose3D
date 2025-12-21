@@ -408,6 +408,10 @@ img[src*="overview.png"] {
   margin-top: 16px;
 }
 
+.pose-viewers-grid.four-wide {
+  grid-template-columns: repeat(4, minmax(200px, 1fr));
+}
+
 .pose-card {
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
@@ -419,6 +423,20 @@ img[src*="overview.png"] {
 
 .pose-card-title {
   margin-bottom: 4px;
+}
+
+.pose-card-image {
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.pose-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background-color: #f8fafc;
 }
 
 .pose-card-description {
@@ -435,6 +453,20 @@ img[src*="overview.png"] {
 .pose-plot {
   width: 100% !important;
   height: 100% !important;
+}
+
+.pose-status {
+  margin: 6px 0 0;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.pose-loading {
+  color: #2563eb;
+}
+
+.pose-error {
+  color: #b91c1c;
 }
 
 /* Add responsive handling for results images */
@@ -548,6 +580,20 @@ img[src*="overview.png"] {
 
   .pose-plot-wrapper {
     height: 300px;
+  }
+
+  .pose-viewers-grid.two-by-two {
+    grid-template-columns: 1fr;
+  }
+
+  .pose-viewers-grid.four-wide {
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .pose-viewers-grid.four-wide {
+    grid-template-columns: 1fr;
   }
 }
 
