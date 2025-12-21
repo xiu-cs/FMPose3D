@@ -133,13 +133,18 @@ function Abstract() {
   );
 }
 
-const POSE_CONNECTIONS = [
-  [0, 1], [1, 2], [2, 3], [3, 4],
-  [2, 5], [5, 6], [6, 7],
-  [2, 8], [8, 9], [9, 10],
-  [0, 11], [11, 12], [12, 13],
-  [0, 14], [14, 15], [15, 16],
-  [5, 8]
+const HUMAN_CONNECTIONS = [
+  [0, 1], [0, 4], [1, 2], [4, 5],
+  [2, 3], [5, 6], [0, 7], [7, 8],
+  [8, 14], [8, 11], [14, 15], [15, 16],
+  [11, 12], [12, 13], [8, 9], [9, 10],
+];
+
+const ANIMAL_CONNECTIONS = [
+  [24, 0], [24, 1], [1, 21], [0, 20], [24, 2], [2, 22], [2, 23],
+  [24, 18], [18, 12], [18, 13], [12, 8], [13, 9], [8, 14], [9, 15],
+  [14, 3], [15, 4], [18, 7], [7, 10], [7, 11], [10, 16], [11, 17],
+  [16, 5], [17, 6], [7, 25], [25, 19],
 ];
 
 const POSE_PALETTE = [
@@ -165,7 +170,7 @@ const axisTemplate = {
   showspikes: false
 };
 
-const buildPoseTraces = (poses) => {
+const buildPoseTraces = (poses, connections = HUMAN_CONNECTIONS) => {
   return poses.flatMap((pose, idx) => {
     const color = POSE_PALETTE[idx % POSE_PALETTE.length];
     const x = pose.map(p => p[0]);
@@ -194,7 +199,7 @@ const buildPoseTraces = (poses) => {
       showlegend: false
     };
 
-    const lineTraces = POSE_CONNECTIONS
+    const lineTraces = connections
       .filter(([a, b]) => a < pose.length && b < pose.length)
       .map(([a, b]) => ({
         type: 'scatter3d',
@@ -357,11 +362,39 @@ const loadPoseFromNpz = async (url) => {
 const offsetPose = (pose, offset) =>
   pose.map(([x, y, z]) => [x + offset[0], y + offset[1], z + offset[2]]);
 
-const POSE_FILE_PATH = `${process.env.PUBLIC_URL}/static/images/3dpose_npz/0000_3D.npz`;
-const PLACEHOLDER_IMAGE = `${process.env.PUBLIC_URL}/static/images/dog.JPEG`;
+const SAMPLES = [
+  {
+    id: 'human-running',
+    title: 'Human · Running · Sample 1',
+    imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/running/pose2D/0000_2D.png`,
+    posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/running/pose3D/0000_3D.npz`,
+    connections: HUMAN_CONNECTIONS,
+  },
+  {
+    id: 'human-golf',
+    title: 'Human · Golf · Sample 2',
+    imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/Golf_3dpw/pose2D/0000_2D.png`,
+    posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/Golf_3dpw/pose3D/0000_3D.npz`,
+    connections: HUMAN_CONNECTIONS,
+  },
+  {
+    id: 'animal-dog',
+    title: 'Animal · Dog · Sample 1',
+    imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/dog/pose2D_on_image/0000_2d.png`,
+    posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000119761_horse/pose3D/0000_3D.npz`,
+    connections: ANIMAL_CONNECTIONS,
+  },
+  {
+    id: 'animal-horse',
+    title: 'Animal · Horse · Sample 2',
+    imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000119761_horse/pose2D_on_image/0000_2d.png`,
+    posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000119761_horse/pose3D/0000_3D.npz`,
+    connections: ANIMAL_CONNECTIONS,
+  },
+];
 
-function PoseViewerCard({ title, poses, camera, imageSrc, hideImage = false }) {
-  const traces = useMemo(() => buildPoseTraces(poses), [poses]);
+function PoseViewerCard({ title, poses, camera, imageSrc, hideImage = false, connections }) {
+  const traces = useMemo(() => buildPoseTraces(poses, connections), [poses, connections]);
   const layout = useMemo(() => buildPoseLayout(camera), [camera]);
 
   return (
@@ -403,7 +436,7 @@ function App() {
     alt: 'Predictions',
   };
 
-  const [poseBase, setPoseBase] = useState(null);
+  const [poseMap, setPoseMap] = useState({});
   const [poseLoading, setPoseLoading] = useState(true);
   const [poseError, setPoseError] = useState('');
 
@@ -420,15 +453,32 @@ function App() {
 
   useEffect(() => {
     let isMounted = true;
-    const fetchPose = async () => {
+    const loadAll = async () => {
+      setPoseLoading(true);
+      setPoseError('');
       try {
-        const pose = await loadPoseFromNpz(POSE_FILE_PATH);
+        const results = await Promise.allSettled(
+          SAMPLES.map(async (sample) => {
+            const pose = await loadPoseFromNpz(sample.posePath);
+            return { id: sample.id, pose };
+          })
+        );
+        const nextMap = {};
+        const errors = [];
+        results.forEach((res, idx) => {
+          if (res.status === 'fulfilled') {
+            nextMap[res.value.id] = res.value.pose;
+          } else {
+            errors.push(`${SAMPLES[idx].title}: ${res.reason?.message || 'load failed'}`);
+          }
+        });
         if (isMounted) {
-          setPoseBase(pose);
+          setPoseMap(nextMap);
+          if (errors.length) setPoseError(errors.join('; '));
         }
       } catch (err) {
         if (isMounted) {
-          setPoseError(err?.message || 'Failed to load pose file');
+          setPoseError(err?.message || 'Failed to load pose files');
         }
       } finally {
         if (isMounted) {
@@ -436,54 +486,33 @@ function App() {
         }
       }
     };
-    fetchPose();
+    loadAll();
     return () => {
       isMounted = false;
     };
   }, []);
 
-  const poseViewers = useMemo(() => {
-    if (!poseBase) return [];
-    const variants = [
-      poseBase,
-      offsetPose(poseBase, [0.05, 0.02, 0.03]),
-      offsetPose(poseBase, [-0.04, 0.03, -0.01]),
-      offsetPose(poseBase, [0.02, -0.03, 0.02])
-    ];
-    const cameras = [
-      { eye: { x: 1.6, y: 1.25, z: 1.1 } },
-      { eye: { x: -1.2, y: 1.3, z: 1.15 } },
-      { eye: { x: 1.25, y: 1.05, z: 1.25 } },
-      { eye: { x: -1.4, y: 1.2, z: 1.05 } }
-    ];
-    return variants.map((pose, idx) => ({
-      id: `pose-${idx + 1}`,
-      title: `Image ${idx + 1} · 3D Pose ${idx + 1}`,
-      poses: [pose],
-      camera: cameras[idx] || undefined
-    }));
-  }, [poseBase]);
-
   const demoModules = useMemo(() => {
-    if (!poseBase) return [];
     const modules = [];
-    poseViewers.forEach((viewer, idx) => {
+    SAMPLES.forEach((sample) => {
       modules.push({
         type: 'image',
-        id: `img-${idx + 1}`,
-        title: `Image ${idx + 1}`,
-        imageSrc: PLACEHOLDER_IMAGE,
+        id: `${sample.id}-img`,
+        title: sample.title.replace('3D Pose', 'Image'),
+        imageSrc: sample.imageSrc,
+        order: sample.id,
       });
       modules.push({
         type: 'pose',
-        id: viewer.id,
-        title: `3D Pose ${idx + 1}`,
-        poses: viewer.poses,
-        camera: viewer.camera,
+        id: `${sample.id}-pose`,
+        title: sample.title,
+        sampleId: sample.id,
+        camera: undefined,
+        connections: sample.connections,
       });
     });
     return modules;
-  }, [poseViewers]);
+  }, []);
   
   return (
     <div className="app">
@@ -510,7 +539,7 @@ function App() {
               </div>
               <div className="pose-viewer-intro">
                 <p className="pose-card-description">
-                  Drag to rotate, scroll to zoom, double-click to reset. Placeholder image reused; four samples share the current 3D pose.
+                  Humans on top row, animals on bottom row. Drag to rotate, scroll to zoom, double-click to reset.
                 </p>
               </div>
               {poseLoading && (
@@ -530,13 +559,23 @@ function App() {
                       />
                     );
                   }
+                  const pose = poseMap[module.sampleId];
+                  if (!pose) {
+                    return (
+                      <div key={module.id} className="pose-card">
+                        <h3 className="title is-5 pose-card-title">{module.title}</h3>
+                        <p className="pose-status pose-loading">Loading pose…</p>
+                      </div>
+                    );
+                  }
                   return (
                     <PoseViewerCard
                       key={module.id}
                       title={module.title}
-                      poses={module.poses}
+                      poses={[pose]}
                       camera={module.camera}
                       hideImage
+                      connections={module.connections}
                     />
                   );
                 })}
