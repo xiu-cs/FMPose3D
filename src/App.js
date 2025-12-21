@@ -365,28 +365,28 @@ const offsetPose = (pose, offset) =>
 const SAMPLES = [
   {
     id: 'human-running',
-    title: 'Human · Running · Sample 1',
+    title: 'Human · Running',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/running/pose2D/0000_2D.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/running/pose3D/0000_3D.npz`,
     connections: HUMAN_CONNECTIONS,
   },
   {
     id: 'human-golf',
-    title: 'Human · Basketball · Sample 2',
+    title: 'Human · Basketball',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/Golf_3dpw/pose2D/0000_2D.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/Golf_3dpw/pose3D/0000_3D.npz`,
     connections: HUMAN_CONNECTIONS,
   },
   {
     id: 'animal-dog',
-    title: 'Animal · Dog · Sample 1',
+    title: 'Animal · Dog',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/dog/pose2D_on_image/0000_2d.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/dog/pose3D/0000_3D.npz`,
     connections: ANIMAL_CONNECTIONS,
   },
   {
     id: 'animal-horse',
-    title: 'Animal · Horse · Sample 2',
+    title: 'Animal · Horse',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000119761_horse/pose2D_on_image/0000_2d.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000119761_horse/pose3D/0000_3D.npz`,
     connections: ANIMAL_CONNECTIONS,
@@ -525,23 +525,7 @@ function App() {
           <div className="columns is-centered">
             <div className="column is-full-width">
               <h2 className="title is-3">Demo</h2>
-              <div className="content">
-                <div className="video-container">
-                  <div className="gallery-frame">
-                    <img 
-                      src={demoImage.src} 
-                      alt={demoImage.alt} 
-                      className="gallery-image"
-                    />
-                    {/* <p className="image-caption">{demoImage.alt}</p> */}
-                  </div>
-                </div>
-              </div>
-              <div className="pose-viewer-intro">
-                <p className="pose-card-description">
-                  Humans on top row, animals on bottom row. Drag to rotate, scroll to zoom, double-click to reset.
-                </p>
-              </div>
+              {/* Demo image temporarily hidden */}
               {poseLoading && (
                 <p className="pose-status pose-loading">Loading 3D pose from NPZ…</p>
               )}
