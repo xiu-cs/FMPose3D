@@ -631,7 +631,7 @@ function App() {
           <h2 className="title">BibTeX</h2>
           <pre><code>{`@article{XXXX,
   title={FMPose: 3D Pose Estimation via Flow Matching},
-  author={Wang, Ti and Yu, Xiaohang and Mathis, Mackenzie},
+  author={Wang, Ti and Yu, Xiaohang and Mathis, Mackenzie W.},
   journal={arXiv preprint},
   year={2025}
 }`}</code></pre>
