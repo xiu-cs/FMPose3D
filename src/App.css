@@ -423,6 +423,7 @@ img[src*="overview.png"] {
 
 .pose-card-title {
   margin-bottom: 4px;
+  text-align: center;
 }
 
 .pose-card-image {
