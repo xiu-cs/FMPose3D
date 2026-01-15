@@ -365,15 +365,15 @@ const offsetPose = (pose, offset) =>
 const SAMPLES = [
   {
     id: 'human-running',
-    title: 'Human · Running',
+    title: 'Human',
     poseTitle: '3D Pose',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/running/pose2D/0000_2D.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/running/pose3D/0000_3D.npz`,
     connections: HUMAN_CONNECTIONS,
   },
   {
-    id: 'human-golf',
-    title: 'Human · Basketball',
+    id: 'human-basketball',
+    title: 'Human',
     poseTitle: '3D Pose',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/Golf_3dpw/pose2D/0000_2D.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/Golf_3dpw/pose3D/0000_3D.npz`,
@@ -388,11 +388,11 @@ const SAMPLES = [
     connections: ANIMAL_CONNECTIONS,
   },
   {
-    id: 'animal-horse',
-    title: 'Animal Cow',
+    id: 'animal-cow',
+    title: 'Animal',
     poseTitle: '3D Pose',
-    imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000119761_horse/pose2D_on_image/0000_2d.png`,
-    posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000119761_horse/pose3D/0000_3D.npz`,
+    imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000129100_cow/pose2D_on_image/0000_2d.png`,
+    posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000129100_cow/pose3D/0000_3D.npz`,
     connections: ANIMAL_CONNECTIONS,
   },
 ];
