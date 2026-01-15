@@ -366,6 +366,7 @@ const SAMPLES = [
   {
     id: 'human-running',
     title: 'Human · Running',
+    poseTitle: '3D Pose',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/running/pose2D/0000_2D.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/running/pose3D/0000_3D.npz`,
     connections: HUMAN_CONNECTIONS,
@@ -373,20 +374,23 @@ const SAMPLES = [
   {
     id: 'human-golf',
     title: 'Human · Basketball',
+    poseTitle: '3D Pose',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/Golf_3dpw/pose2D/0000_2D.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/humans/Golf_3dpw/pose3D/0000_3D.npz`,
     connections: HUMAN_CONNECTIONS,
   },
   {
     id: 'animal-dog',
-    title: 'Animal · Dog',
+    title: 'Animal',
+    poseTitle: '3D Pose',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/dog/pose2D_on_image/0000_2d.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/dog/pose3D/0000_3D.npz`,
     connections: ANIMAL_CONNECTIONS,
   },
   {
     id: 'animal-horse',
-    title: 'Animal · Horse',
+    title: 'Animal Cow',
+    poseTitle: '3D Pose',
     imageSrc: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000119761_horse/pose2D_on_image/0000_2d.png`,
     posePath: `${process.env.PUBLIC_URL}/static/3d_predictions/animals/000000119761_horse/pose3D/0000_3D.npz`,
     connections: ANIMAL_CONNECTIONS,
@@ -498,14 +502,14 @@ function App() {
       modules.push({
         type: 'image',
         id: `${sample.id}-img`,
-        title: sample.title.replace('3D Pose', 'Image'),
+        title: sample.title,
         imageSrc: sample.imageSrc,
         order: sample.id,
       });
       modules.push({
         type: 'pose',
         id: `${sample.id}-pose`,
-        title: sample.title,
+        title: sample.poseTitle,
         sampleId: sample.id,
         camera: undefined,
         connections: sample.connections,
