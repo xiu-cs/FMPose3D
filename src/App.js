@@ -233,9 +233,6 @@ const buildPoseLayout = (camera) => ({
   hovermode: 'closest'
 });
 
-const applyOffset = (pose, offset) =>
-  pose.map(([x, y, z]) => [x + offset[0], y + offset[1], z + offset[2]]);
-
 const parseHeaderStr = (str) => {
   const start = str.indexOf('{');
   const end = str.lastIndexOf('}');
