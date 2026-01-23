@@ -62,7 +62,7 @@ function Hero() {
               </div>
               <div className="publication-links">
                 <span className="link-block">
-                  <a href="http://arxiv.org/abs/2503.18712" className="external-link button is-normal is-rounded is-dark">
+                  <a href="http://arxiv.org/abs/xxxx" className="external-link button is-normal is-rounded is-dark">
                     <span className="icon">
                       <i className="fas fa-file-pdf"></i>
                     </span>
@@ -70,21 +70,21 @@ function Hero() {
                   </a>
                 </span>
                 <span className="link-block">
-                  <a href="https://github.com/AdaptiveMotorControlLab/LLaVAction" className="external-link button is-normal is-rounded is-dark">
+                  <a href="https://github.com/AdaptiveMotorControlLab/FMPose" className="external-link button is-normal is-rounded is-dark">
                     <span className="icon">
                       <i className="fab fa-github"></i>
                     </span>
                     <span>Code</span>
                   </a>
                 </span>
-                <span className="link-block">
-                  <a href="https://huggingface.co/MLAdaptiveIntelligence/LLaVAction-7B" className="external-link button is-normal is-rounded is-dark">
+                {/* <span className="link-block">
+                  <a href="https://huggingface.co/MLAdaptiveIntelligence/FMPose" className="external-link button is-normal is-rounded is-dark">
                     <span className="icon">
                       <i className="far fa-images"></i>
                     </span>
                     <span>Data</span>
                   </a>
-                </span>
+                </span> */}
               </div>
             </div>
           </div>
