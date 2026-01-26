@@ -25,8 +25,8 @@ function Navbar() {
           <div className="navbar-item has-dropdown is-hoverable">
             <a className="navbar-link">Our Related Research</a>
             <div className="navbar-dropdown">
-              <a className="navbar-item" href="https://github.com/AdaptiveMotorControlLab/AmadeusGPT">
-                AmadeusGPT
+              <a className="navbar-item" href="https://github.com/DeepLabCut/DeepLabCut">
+                DeepLabCut
               </a>
             </div>
           </div>
@@ -54,7 +54,7 @@ function Hero() {
                   <a href="https://people.epfl.ch/xiaohang.yu?lang=en">Xiaohang Yu</a><sup>1</sup>
                 </span>
                 <span className="author-block">
-                  <a href="https://www.mackenziemathislab.org/">Mackenzie Mathis</a><sup>1</sup>
+                  <a href="https://www.mackenziemathislab.org/">Mackenzie Weygandt Mathis</a><sup>1</sup>
                 </span>
               </div>
               <div className="is-size-5 publication-authors">
@@ -114,7 +114,7 @@ function Abstract() {
               estimation framework, <strong>FMPose</strong>, that formulates 3D pose
               estimation as a conditional distribution transport problem. It
               continuously transports samples from a standard Gaussian prior to the
-              distribution of plausible 3D poses conditioned on 2D inputs. While the
+              distribution of plausible <strong>3D poses conditioned only on 2D inputs</strong>. While the
               ODE trajectories are deterministic, FMPose naturally generates diverse
               pose hypotheses by sampling different noise seeds. To obtain a single
               accurate prediction from those hypotheses, we further introduce a
