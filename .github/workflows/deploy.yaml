@@ -28,7 +28,7 @@ jobs:
     - name: Build the React app
       env:
         CI: false
-        PUBLIC_URL: https://mmathislab.github.io/llavaction
+        PUBLIC_URL: https://xiu-cs.github.io/FMPose
       run: npm run build
 
     - name: Check build output
