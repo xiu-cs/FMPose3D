@@ -115,7 +115,7 @@ function Abstract() {
               estimation as a conditional distribution transport problem. It
               continuously transports samples from a standard Gaussian prior to the
               distribution of plausible <strong>3D poses conditioned only on 2D inputs</strong>. While the
-              ODE trajectories are deterministic, FMPose naturally generates diverse
+              ODE trajectories are deterministic, FMPose3D naturally generates diverse
               pose hypotheses by sampling different noise seeds. To obtain a single
               accurate prediction from those hypotheses, we further introduce a
               <strong> Reprojection-based Posterior Expectation Aggregation (RPEA)
@@ -631,7 +631,7 @@ function App() {
         <div className="container is-max-desktop content">
           <h2 className="title">BibTeX</h2>
           <pre><code>{`@article{XXXX,
-  title={FMPose: 3D Pose Estimation via Flow Matching},
+  title={FMPose3D: monocular 3D Pose  stimation via Flow Matching},
   author={Wang, Ti and Yu, Xiaohang and Mathis, Mackenzie W.},
   journal={arXiv preprint},
   year={2025}
