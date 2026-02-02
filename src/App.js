@@ -44,7 +44,7 @@ function Hero() {
           <div className="columns is-centered">
             <div className="column has-text-centered">
               <h1 className="title is-1 publication-title">
-              FMPose: 3D Pose Estimation via Flow Matching
+              FMPose3D: monocular 3D Pose Estimation via Flow Matching
               </h1>
               <div className="is-size-5 publication-authors">
                 <span className="author-block">
@@ -70,7 +70,7 @@ function Hero() {
                   </a>
                 </span>
                 <span className="link-block">
-                  <a href="https://github.com/AdaptiveMotorControlLab/FMPose" className="external-link button is-normal is-rounded is-dark">
+                  <a href="https://github.com/AdaptiveMotorControlLab/FMPose3D" className="external-link button is-normal is-rounded is-dark">
                     <span className="icon">
                       <i className="fab fa-github"></i>
                     </span>
@@ -78,7 +78,7 @@ function Hero() {
                   </a>
                 </span>
                 {/* <span className="link-block">
-                  <a href="https://huggingface.co/MLAdaptiveIntelligence/FMPose" className="external-link button is-normal is-rounded is-dark">
+                  <a href="https://huggingface.co/MLAdaptiveIntelligence/FMPose3D" className="external-link button is-normal is-rounded is-dark">
                     <span className="icon">
                       <i className="far fa-images"></i>
                     </span>
@@ -111,7 +111,7 @@ function Abstract() {
               Flow Matching (FM) learns an ODE-based velocity field, enabling
               efficient generation of 3D pose samples with only a few integration
               steps. Inspired by this capability, we propose a novel generative pose
-              estimation framework, <strong>FMPose</strong>, that formulates 3D pose
+              estimation framework, <strong>FMPose3D</strong>, that formulates 3D pose
               estimation as a conditional distribution transport problem. It
               continuously transports samples from a standard Gaussian prior to the
               distribution of plausible <strong>3D poses conditioned only on 2D inputs</strong>. While the
@@ -120,7 +120,7 @@ function Abstract() {
               accurate prediction from those hypotheses, we further introduce a
               <strong> Reprojection-based Posterior Expectation Aggregation (RPEA)
               </strong> module, which approximates the Bayesian posterior expectation
-              over 3D hypotheses. FMPose surpasses existing methods on the widely used
+              over 3D hypotheses. FMPose3D surpasses existing methods on the widely used
               human pose estimation benchmarks Human3.6M and MPI-INF-3DHP, and further
               achieves state-of-the-art performance on the 3D animal pose datasets
               Animal3D and CtrlAni3D, demonstrating strong performance across both
