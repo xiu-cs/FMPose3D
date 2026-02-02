@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "https://xiu-cs.github.io/FMPose/static/css/main.19ffe413.css",
-    "main.js": "https://xiu-cs.github.io/FMPose/static/js/main.e46ad933.js",
+    "main.js": "https://xiu-cs.github.io/FMPose/static/js/main.8397deea.js",
     "static/media/KaTeX_AMS-Regular.ttf": "https://xiu-cs.github.io/FMPose/static/media/KaTeX_AMS-Regular.853be92419a6c3766b9a.ttf",
     "static/media/KaTeX_Main-Regular.ttf": "https://xiu-cs.github.io/FMPose/static/media/KaTeX_Main-Regular.9eba1d77abcf2aa6e94e.ttf",
     "static/media/KaTeX_Main-Bold.ttf": "https://xiu-cs.github.io/FMPose/static/media/KaTeX_Main-Bold.8169508bf58f8bd92ad8.ttf",
@@ -64,10 +64,10 @@
     "static/media/KaTeX_Size3-Regular.woff2": "https://xiu-cs.github.io/FMPose/static/media/KaTeX_Size3-Regular.e1951519f6f0596f7356.woff2",
     "index.html": "https://xiu-cs.github.io/FMPose/index.html",
     "main.19ffe413.css.map": "https://xiu-cs.github.io/FMPose/static/css/main.19ffe413.css.map",
-    "main.e46ad933.js.map": "https://xiu-cs.github.io/FMPose/static/js/main.e46ad933.js.map"
+    "main.8397deea.js.map": "https://xiu-cs.github.io/FMPose/static/js/main.8397deea.js.map"
   },
   "entrypoints": [
     "static/css/main.19ffe413.css",
-    "static/js/main.e46ad933.js"
+    "static/js/main.8397deea.js"
   ]
 }
