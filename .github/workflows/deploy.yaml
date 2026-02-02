@@ -28,7 +28,7 @@ jobs:
     - name: Build the React app
       env:
         CI: false
-        PUBLIC_URL: https://xiu-cs.github.io/FMPose
+        PUBLIC_URL: https://xiu-cs.github.io/FMPose3D
       run: npm run build
 
     - name: Check build output
