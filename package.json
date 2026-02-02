@@ -2,7 +2,7 @@
   "name": "fmpose",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://AdaptiveMotorControlLab.github.io/FMPose",
+  "homepage": "https://xiu-cs.github.io/FMPose3D",
   "dependencies": {
     "jszip": "^3.10.1",
     "katex": "^0.16.27",
