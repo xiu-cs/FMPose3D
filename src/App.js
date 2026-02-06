@@ -630,12 +630,17 @@ function App() {
       <section className="section" id="BibTeX">
         <div className="container is-max-desktop content">
           <h2 className="title">BibTeX</h2>
-          <pre><code>{`@article{wang2026fmpose3d,
-  title={FMPose3D: monocular 3D Pose  stimation via Flow Matching},
-  author={Wang, Ti and Yu, Xiaohang and Mathis, Mackenzie W.},
-  journal={arXiv preprint arXiv:2602.05755},
-  year={2026}
-}`}</code></pre>
+          <pre><code>{`@misc{wang2026fmpose3dmonocular3dpose,
+                              title={FMPose3D: monocular 3D pose estimation via flow matching}, 
+                              author={Ti Wang and Xiaohang Yu and Mackenzie Weygandt Mathis},
+                              year={2026},
+                              eprint={2602.05755},
+                              archivePrefix={arXiv},
+                              primaryClass={cs.CV},
+                              url={https://arxiv.org/abs/2602.05755}, 
+                      }`}
+                </code>
+          </pre>
         </div>
       </section>
     </div>
