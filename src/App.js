@@ -638,7 +638,7 @@ eprint={2602.05755},
 archivePrefix={arXiv},
 primaryClass={cs.CV},
 url={https://arxiv.org/abs/2602.05755}, 
-                      }`}
+}`}
                 </code>
           </pre>
         </div>
