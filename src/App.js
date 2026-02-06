@@ -62,7 +62,7 @@ function Hero() {
               </div>
               <div className="publication-links">
                 <span className="link-block">
-                  <a href="http://arxiv.org/abs/xxxx" className="external-link button is-normal is-rounded is-dark">
+                  <a href="https://arxiv.org/abs/2602.05755" className="external-link button is-normal is-rounded is-dark">
                     <span className="icon">
                       <i className="fas fa-file-pdf"></i>
                     </span>
@@ -578,7 +578,7 @@ function App() {
               <div className="results-container">
                 <div className="result-image-wrapper">
                   <img 
-                    src={`${process.env.PUBLIC_URL}/static/images/training_pipeline.jpg`} 
+                    src={`${process.env.PUBLIC_URL}/static/images/training_pipeline.png`} 
                     alt="Training pipeline"
                     className="result-image"
                   />
@@ -630,11 +630,11 @@ function App() {
       <section className="section" id="BibTeX">
         <div className="container is-max-desktop content">
           <h2 className="title">BibTeX</h2>
-          <pre><code>{`@article{XXXX,
+          <pre><code>{`@article{wang2026fmpose3d,
   title={FMPose3D: monocular 3D Pose  stimation via Flow Matching},
   author={Wang, Ti and Yu, Xiaohang and Mathis, Mackenzie W.},
-  journal={arXiv preprint},
-  year={2025}
+  journal={arXiv preprint arXiv:2602.05755},
+  year={2026}
 }`}</code></pre>
         </div>
       </section>
