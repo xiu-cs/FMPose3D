@@ -631,13 +631,13 @@ function App() {
         <div className="container is-max-desktop content">
           <h2 className="title">BibTeX</h2>
           <pre><code>{`@misc{wang2026fmpose3dmonocular3dpose,
-                              title={FMPose3D: monocular 3D pose estimation via flow matching}, 
-                              author={Ti Wang and Xiaohang Yu and Mackenzie Weygandt Mathis},
-                              year={2026},
-                              eprint={2602.05755},
-                              archivePrefix={arXiv},
-                              primaryClass={cs.CV},
-                              url={https://arxiv.org/abs/2602.05755}, 
+title={FMPose3D: monocular 3D pose estimation via flow matching}, 
+author={Ti Wang and Xiaohang Yu and Mackenzie Weygandt Mathis},
+year={2026},
+eprint={2602.05755},
+archivePrefix={arXiv},
+primaryClass={cs.CV},
+url={https://arxiv.org/abs/2602.05755}, 
                       }`}
                 </code>
           </pre>
