@@ -60,6 +60,9 @@ function Hero() {
               <div className="is-size-5 publication-authors">
                 <span className="author-block"><sup>1</sup>EPFL </span>
               </div>
+              <div className="is-size-5 publication-venue">
+                <strong>Accepted at CVPR 2026</strong>
+              </div>
               <div className="publication-links">
                 <span className="link-block">
                   <a href="https://arxiv.org/abs/2602.05755" className="external-link button is-normal is-rounded is-dark">

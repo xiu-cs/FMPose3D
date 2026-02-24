@@ -23,6 +23,11 @@ body {
   font-family: 'Google Sans', sans-serif;
 }
 
+.publication-venue {
+  font-family: 'Google Sans', sans-serif;
+  margin-top: 6px;
+}
+
 .author-block {
   margin-right: 10px;
 }
@@ -502,6 +507,10 @@ img[src*="overview.png"] {
   }
 
   .publication-authors {
+    padding: 0 10px;
+  }
+
+  .publication-venue {
     padding: 0 10px;
   }
 
