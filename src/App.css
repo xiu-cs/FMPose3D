@@ -25,7 +25,9 @@ body {
 
 .publication-venue {
   font-family: 'Google Sans', sans-serif;
-  margin-top: 6px;
+  margin: 6px auto 0;
+  width: fit-content;
+  text-align: center;
 }
 
 .author-block {
