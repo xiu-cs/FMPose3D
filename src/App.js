@@ -44,7 +44,7 @@ function Hero() {
           <div className="columns is-centered">
             <div className="column has-text-centered">
               <h1 className="title is-1 publication-title">
-              FMPose3D: monocular 3D Pose Estimation via Flow Matching
+              FMPose3D: Monocular 3D Pose Estimation via Flow Matching
               </h1>
               <div className="is-size-5 publication-authors">
                 <span className="author-block">
